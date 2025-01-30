@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 
@@ -6,7 +7,7 @@
 #define BLUE_LED_PIN 12
 #define RED_LED_PIN 13
 
-const LEDS_DELAY = 3000;
+const int LEDS_DELAY = 3000;
 
 bool repeating_timer_callback(repeating_timer_t *rt);
 void init_led(uint led_pin);
@@ -19,11 +20,22 @@ int main()
     init_led(BLUE_LED_PIN);
     init_led(RED_LED_PIN);
 
-    add_repeating_timer_ms(LEDS_DELAY, repeating_timer_callback, 1, NULL);
-    add_repeating_timer_ms(LEDS_DELAY * 2, repeating_timer_callback, 2, NULL);
-    add_repeating_timer_ms(LEDS_DELAY * 3, repeating_timer_callback, 3, NULL);
+    struct repeating_timer timer1, timer2, timer3;
 
-    while (true) {
+    int *led1 = malloc(sizeof(int));
+    int *led2 = malloc(sizeof(int));
+    int *led3 = malloc(sizeof(int));
+
+    *led1 = 1;
+    *led2 = 2;
+    *led3 = 3;
+
+    add_repeating_timer_ms(LEDS_DELAY, repeating_timer_callback, led1, &timer1);
+    add_repeating_timer_ms(LEDS_DELAY * 2, repeating_timer_callback, led2, &timer2);
+    add_repeating_timer_ms(LEDS_DELAY * 3, repeating_timer_callback, led3, &timer3);
+
+    while (true)
+    {
         uint32_t start_ms = to_ms_since_boot(get_absolute_time());
 
         sleep_ms(1000);
@@ -34,24 +46,25 @@ int main()
 
 bool repeating_timer_callback(repeating_timer_t *rt)
 {
-    switch ((int)rt->user_data) {
-        case 1:
-            printf("Repeating timer 1 callback\n");
-            gpio_put(RED_LED_PIN, 1);
-            gpio_put(GREEN_LED_PIN, 0);
-            gpio_put(BLUE_LED_PIN, 0);
-            break;
-        case 2:
-            printf("Repeating timer 2 callback\n");
-            gpio_put(RED_LED_PIN, 0);
-            gpio_put(GREEN_LED_PIN, 1);
-            gpio_put(BLUE_LED_PIN, 1);
-            break;
-        case 3:
-            gpio_put(RED_LED_PIN, 0);
-            gpio_put(GREEN_LED_PIN, 1);
-            gpio_put(BLUE_LED_PIN, 0);
-            break;
+    switch ((int)rt->user_data)
+    {
+    case 1:
+        printf("Repeating timer 1 callback\n");
+        gpio_put(RED_LED_PIN, 1);
+        gpio_put(GREEN_LED_PIN, 0);
+        gpio_put(BLUE_LED_PIN, 0);
+        break;
+    case 2:
+        printf("Repeating timer 2 callback\n");
+        gpio_put(RED_LED_PIN, 0);
+        gpio_put(GREEN_LED_PIN, 1);
+        gpio_put(BLUE_LED_PIN, 1);
+        break;
+    case 3:
+        gpio_put(RED_LED_PIN, 0);
+        gpio_put(GREEN_LED_PIN, 1);
+        gpio_put(BLUE_LED_PIN, 0);
+        break;
     }
     return true;
 }
