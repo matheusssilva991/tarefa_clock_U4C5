@@ -11,6 +11,7 @@
 
 static volatile bool btn_disabled = false;
 static volatile bool btn_pressed = false;
+static absolute_time_t last_press_time;
 static volatile int led_state = 0;
 
 void init_led(uint led_pin);
@@ -36,10 +37,13 @@ int main()
         {
             btn_disabled = true;
             btn_pressed = false;
-            add_alarm_in_ms(LEDS_DELAY * 0, alarm_callback, NULL, false);
+
+            add_alarm_in_ms(1, alarm_callback, NULL, false);
         }
         sleep_ms(10);
     }
+
+    return 0;
 }
 
 void init_led(uint led_pin)
@@ -58,25 +62,29 @@ void init_btn(uint btn_pin)
 
 int64_t alarm_callback(alarm_id_t id, void *user_data)
 {
-    printf("Callback chamado - Led state antes: %d\n", led_state);
+    printf("Alarme disparado\n");
     switch (led_state)
     {
     case 0:
+        printf("Ligando todos os LEDs\n");
         gpio_put(GREEN_LED_PIN, 1);
         gpio_put(BLUE_LED_PIN, 1);
         gpio_put(RED_LED_PIN, 1);
         break;
     case 1:
+        printf("Desligando LED verde\n");
         gpio_put(GREEN_LED_PIN, 0);
         gpio_put(BLUE_LED_PIN, 1);
         gpio_put(RED_LED_PIN, 1);
         break;
     case 2:
+        printf("Desligando LED azul\n");
         gpio_put(GREEN_LED_PIN, 0);
         gpio_put(BLUE_LED_PIN, 0);
         gpio_put(RED_LED_PIN, 1);
         break;
     case 3:
+        printf("Desligando LED vermelho\n");
         gpio_put(GREEN_LED_PIN, 0);
         gpio_put(BLUE_LED_PIN, 0);
         gpio_put(RED_LED_PIN, 0);
@@ -86,17 +94,22 @@ int64_t alarm_callback(alarm_id_t id, void *user_data)
     }
 
     led_state = (led_state + 1) % 4;
-    printf("Callback terminado - Led state depois: %d\n", led_state);
 
     add_alarm_in_ms(LEDS_DELAY, alarm_callback, NULL, false); // Reagendar próxima transição
 }
 
-void btn_callback(uint gpio, uint32_t events) {
-    static uint64_t last_press_time = 0;
-    uint64_t current_time = time_us_64() / 1000;
+void btn_callback(uint gpio, uint32_t events)
+{
+    absolute_time_t current_time = get_absolute_time();
 
-    if (current_time - last_press_time > DEBOUNCE_DELAY) {
+    // Verificar se o tempo decorrido desde a última pressão é maior que o debounce
+    if (absolute_time_diff_us(last_press_time, current_time) > DEBOUNCE_DELAY * 1000)
+    {
+        if (btn_disabled)
+            return;
+
+        printf("Botão pressionado\n");
         btn_pressed = true;
-        last_press_time = current_time;
+        last_press_time = current_time;  // Atualiza o tempo da última pressão
     }
 }
