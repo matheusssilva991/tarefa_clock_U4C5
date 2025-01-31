@@ -52,6 +52,8 @@ cd ..
 
 6. Execute a simulação através do Wokwi ou da placa Bitdoglab
 
+Link da simulação no Wokwi: [https://wokwi.com/projects/421599367141915649](https://wokwi.com/projects/421599367141915649)
+
 ## 🤝 Equipe
 
 Membros da equipe de desenvolvimento do projeto:
