@@ -1,6 +1,6 @@
-# Tarefa 1 Temporizador - Embarcatech
+# Tarefa 2 Temporizador - Embarcatech
 
-Este projeto implementa um semáforo utilizando o Raspberry Pi Pico e a função add_repeating_timer(). O temporizador controla a mudança de estados do semáforo, garantindo que cada LED permaneça aceso por 3 segundos antes de passar para o próximo estado.
+Este projeto utiliza um botão e três LEDs (Vermelho, Verde e Azul) para criar uma sequência de acionamento e desligamento dos LEDs. Ao pressionar o botão, todos os três LEDs são acesos simultaneamente. Após o botão ser pressionado, os LEDs começam a apagar de forma sequencial, um por vez, a cada 3 segundos. O LED verde apaga primeiro, seguido pelo azul e, por último, o vermelho.
 
 ## Requisitos
 
@@ -14,8 +14,9 @@ Este projeto implementa um semáforo utilizando o Raspberry Pi Pico e a função
 
 ## Componentes
 
-- 1 Placa Bitdoglab (Opcional)
-- 3 LEDs (Vermelho, Verde e Amarelo)
+- 1 Placa Bitdoglab
+- 1 Botão
+- 3 LEDs (Vermelho, Verde e Azul)
 - 3 Resistores de 330 Ohms
 
 ## Como executar
@@ -30,7 +31,7 @@ git clone [https://github.com/matheusssilva991/tarefas_temporizador_U4C5.git]
 
 ```bash
 cd tarefas_temporizador_U4C5
-cd tarefa1_temporizador_U4C5
+cd tarefa2_temporizador_U4C5
 ```
 
 4. Abra o projeto no VS Code:

@@ -3,11 +3,12 @@
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 
-#define GREEN_LED_PIN 11
-#define BLUE_LED_PIN 12
-#define RED_LED_PIN 13
+#define RED_LED_PIN 11
+#define YELLOW_LED_PIN 12
+#define GREEN_LED_PIN 13
 
 const int LEDS_DELAY = 3000;
+static volatile int led_id = 1;
 
 bool repeating_timer_callback(repeating_timer_t *rt);
 void init_led(uint led_pin);
@@ -16,23 +17,13 @@ int main()
 {
     stdio_init_all();
 
-    init_led(GREEN_LED_PIN);
-    init_led(BLUE_LED_PIN);
     init_led(RED_LED_PIN);
+    init_led(YELLOW_LED_PIN);
+    init_led(GREEN_LED_PIN);
 
-    struct repeating_timer timer1, timer2, timer3;
+    struct repeating_timer timer;
 
-    int *led1 = malloc(sizeof(int));
-    int *led2 = malloc(sizeof(int));
-    int *led3 = malloc(sizeof(int));
-
-    *led1 = 1;
-    *led2 = 2;
-    *led3 = 3;
-
-    add_repeating_timer_ms(LEDS_DELAY, repeating_timer_callback, led1, &timer1);
-    add_repeating_timer_ms(LEDS_DELAY * 2, repeating_timer_callback, led2, &timer2);
-    add_repeating_timer_ms(LEDS_DELAY * 3, repeating_timer_callback, led3, &timer3);
+    add_repeating_timer_ms(LEDS_DELAY, repeating_timer_callback, NULL, &timer);
 
     while (true)
     {
@@ -46,26 +37,30 @@ int main()
 
 bool repeating_timer_callback(repeating_timer_t *rt)
 {
-    switch ((int)rt->user_data)
+    switch (led_id)
     {
     case 1:
-        printf("Repeating timer 1 callback\n");
+        printf("Led Vermelho.\n");
         gpio_put(RED_LED_PIN, 1);
+        gpio_put(YELLOW_LED_PIN, 0);
         gpio_put(GREEN_LED_PIN, 0);
-        gpio_put(BLUE_LED_PIN, 0);
         break;
     case 2:
-        printf("Repeating timer 2 callback\n");
+        printf("Led Amarelo.\n");
         gpio_put(RED_LED_PIN, 0);
-        gpio_put(GREEN_LED_PIN, 1);
-        gpio_put(BLUE_LED_PIN, 1);
+        gpio_put(YELLOW_LED_PIN, 1);
+        gpio_put(GREEN_LED_PIN, 0);
         break;
     case 3:
+        printf("Led Verde.\n");
         gpio_put(RED_LED_PIN, 0);
+        gpio_put(YELLOW_LED_PIN, 0);
         gpio_put(GREEN_LED_PIN, 1);
-        gpio_put(BLUE_LED_PIN, 0);
         break;
     }
+
+    led_id = (led_id % 3) + 1;
+
     return true;
 }
 
